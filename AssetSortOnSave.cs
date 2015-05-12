@@ -76,9 +76,15 @@ namespace AssetSortOnSave
                 content = reader.ReadToEnd();
             }
 
+            var sorter = new YamlDocumentSorter(content);
+            
+            if(!sorter.IsValid()) {
+                return;
+            }
+            
             using (var writer = new StreamWriter(File.Open(path, FileMode.Create)))
             {
-                var sorter = new YamlDocumentSorter(content);
+                
                 writer.Write(sorter.GetSortedYaml());
             }
 
@@ -125,6 +131,14 @@ namespace AssetSortOnSave
                 sorted = true;
             }
             return sortedDocument;
+        }
+
+        public bool IsValid() {
+            if(sorted) {
+                return sortedDocument.StartsWith("%YAML");
+            } else {
+                return unsorted.StartsWith("%YAML");
+            }
         }
 
         private static IEnumerable<string> ToLineEmuerable(string content)
